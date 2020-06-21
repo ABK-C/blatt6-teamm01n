@@ -5,21 +5,15 @@
 #include <memory>
 #include <fstream>
 #include <cmath>
+#include <iomanip>
 
 std::ofstream fout("trägheit.txt");
 
-//int trägheit(int N, double M, double ZM_R, double ZM_L = 1, Vektor a, Vektor u) {
+int alles(double N, double M, double ZM_R, Vektor a, Vektor u) {
 
-int main() {
-  const int N = 10000;     // Anzahl Integrationspunkte
-  const double M = 1;      // Masse des Zylindermantels
-  const double ZM_R = 1.0; // Radius der Zylindermantels
-  const double ZM_L = 1.0; // Laenge des Zylindermantels
+ double ZM_L = 1;
 
-  Vektor a(0,0,0);
-  Vektor u(0,0,1);
-
-  std::unique_ptr<Zylindermantel> zm(new Zylindermantel(ZM_R, ZM_L));
+ std::unique_ptr<Zylindermantel> zm(new Zylindermantel(ZM_R, ZM_L));
 
   double J = 0;     // Massentraegheitsmoment
   double m = M / N; // Masse eines Massenpunktes
@@ -36,28 +30,54 @@ int main() {
   std::unique_ptr<Vollzylinder> vz(new Vollzylinder(ZM_R, ZM_L));
 
   double I = 0;
+  m = M / N;
   for (int i = 0; 1 < N; ++i) {
     Vektor x = vz->punkt();
     double r = (((x-a).Vektor::kreuz(u)).Vektor::betrag()) / (u.Vektor::betrag());
     I += m * r * r;
   }
 
-   double JZMan = M * (ZM_R * ZM_R + std::pow((((a).Vektor::kreuz(u)).Vektor::betrag() / u.Vektor::betrag()), 2));
+  double JZMan = M * (ZM_R * ZM_R + std::pow((((a).Vektor::kreuz(u)).Vektor::betrag() / u.Vektor::betrag()), 2));
 
-   double JVZan = M * (ZM_R * ZM_R / 2 + std::pow((((a).Vektor::kreuz(u)).Vektor::betrag() / u.Vektor::betrag()), 2));
+  double JVZan = M * (ZM_R * ZM_R / 2 + std::pow((((a).Vektor::kreuz(u)).Vektor::betrag() / u.Vektor::betrag()), 2));
 
-fout << ZM_R << " " << ZM_L << " " << M << " " << a << " " << u << " "
+ fout << ZM_R << " " << ZM_L << " " << M << " " << a << " " << u << " "
  << "|" << " " << JZMan << " " << J << " " << JVZan << " " << I << std::endl;
 
  return 0;
   
 }
 
-//}
-//Vektor a; // Punkt auf der Rotationsachse
+int main() {
+
+  const int N = 10000;     // Anzahl Integrationspunkte
+  
+
+  Vektor a(0,0,0); // Punkt auf der Rotationsachse
+  Vektor u(0,0,1); // Richtung der Rotationsachse
+
+  alles(N,1,1,a,u);
+  alles(N,2,1,a,u);
+  alles(N,1,2,a,u);
+  a = Vektor(0,1,0);
+  alles(N,1,1,a,u);
+  alles(N,2,1,a,u);
+  a = Vektor(0,2,0);
+  alles(N,1,2,a,u);
+
+  fout.close();
+
+  return 0;
+
+}
+
+
+  //const double M = 1;      // Masse des Zylindermantels
+  //const double ZM_R = 1.0; // Radius der Zylindermantels
+  //const double ZM_L = 1.0; // Laenge des Zylindermantels
   //std::cout << "Aufpunkt:";
   //std::cin >> a;
-  //Vektor u; // Richtung der Rotationsachse
+  
   //std::cout << "Richtung:";
   //std::cin >> u;
 
