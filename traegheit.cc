@@ -30,7 +30,7 @@ int alles(double N, double M, double ZM_R, Vektor a, Vektor u, double ZM_L) {
 
   double I = 0;
   m = M / N;
-  for (int i = 0; 1 < N; ++i) {
+  for (int i = 0; i < N; ++i) {
     Vektor x = vz->punkt();
     double r = (((x-a).Vektor::kreuz(u)).Vektor::betrag()) / (u.Vektor::betrag());
     I += m * r * r;
