@@ -24,7 +24,7 @@ int alles(double N, double M, double ZM_R, Vektor a, Vektor u, double ZM_L) {
     J += m * r * r;
   }
 
-  double JZMan = M * (ZM_R * ZM_R + std::pow((((a).Vektor::kreuz(u)).Vektor::betrag() / u.Vektor::betrag()), 2));
+    double JZMan = (M * ZM_R * ZM_R) + (M * std::pow((((a).Vektor::kreuz(u)).Vektor::betrag() / u.Vektor::betrag()), 2));
 
   std::unique_ptr<Vollzylinder> vz(new Vollzylinder(ZM_R, ZM_L));
 
@@ -36,10 +36,10 @@ int alles(double N, double M, double ZM_R, Vektor a, Vektor u, double ZM_L) {
     I += m * r * r;
   }
 
-  double JVZan = M * (ZM_R * ZM_R / 2 + std::pow((((a).Vektor::kreuz(u)).Vektor::betrag() / u.Vektor::betrag()), 2));
+    double IVZan = (M * ZM_R * ZM_R / 2) + (M * std::pow((((a).Vektor::kreuz(u)).Vektor::betrag() / u.Vektor::betrag()), 2));
 
  fout << ZM_R << " " << ZM_L << " " << M << " " << a << " " << u << " "
- << "|" << " " << JZMan << " " << J << " " << JVZan << " " << I << std::endl;
+ << "|" << " " << JZMan << " " << J << " " << IVZan << " " << I << std::endl;
   
 return 0;
 
