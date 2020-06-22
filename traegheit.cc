@@ -5,15 +5,12 @@
 #include <memory>
 #include <fstream>
 #include <cmath>
-#include <iomanip>
 
 std::ofstream fout("trägheit.txt");
 
-int alles(double N, double M, double ZM_R, Vektor a, Vektor u) {
+int alles(double N, double M, double ZM_R, Vektor a, Vektor u, double ZM_L) {
 
- double ZM_L = 1;
-
- std::unique_ptr<Zylindermantel> zm(new Zylindermantel(ZM_R, ZM_L));
+  std::unique_ptr<Zylindermantel> zm(new Zylindermantel(ZM_R, ZM_L));
 
   double J = 0;     // Massentraegheitsmoment
   double m = M / N; // Masse eines Massenpunktes
@@ -27,6 +24,8 @@ int alles(double N, double M, double ZM_R, Vektor a, Vektor u) {
     J += m * r * r;
   }
 
+  double JZMan = M * (ZM_R * ZM_R + std::pow((((a).Vektor::kreuz(u)).Vektor::betrag() / u.Vektor::betrag()), 2));
+
   std::unique_ptr<Vollzylinder> vz(new Vollzylinder(ZM_R, ZM_L));
 
   double I = 0;
@@ -37,15 +36,13 @@ int alles(double N, double M, double ZM_R, Vektor a, Vektor u) {
     I += m * r * r;
   }
 
-  double JZMan = M * (ZM_R * ZM_R + std::pow((((a).Vektor::kreuz(u)).Vektor::betrag() / u.Vektor::betrag()), 2));
-
   double JVZan = M * (ZM_R * ZM_R / 2 + std::pow((((a).Vektor::kreuz(u)).Vektor::betrag() / u.Vektor::betrag()), 2));
 
  fout << ZM_R << " " << ZM_L << " " << M << " " << a << " " << u << " "
  << "|" << " " << JZMan << " " << J << " " << JVZan << " " << I << std::endl;
-
- return 0;
   
+return 0;
+
 }
 
 int main() {
@@ -56,14 +53,14 @@ int main() {
   Vektor a(0,0,0); // Punkt auf der Rotationsachse
   Vektor u(0,0,1); // Richtung der Rotationsachse
 
-  alles(N,1,1,a,u);
-  alles(N,2,1,a,u);
-  alles(N,1,2,a,u);
+  alles(N,1,1,a,u,1);
+  alles(N,2,1,a,u,1);
+  alles(N,1,2,a,u,1);
   a = Vektor(0,1,0);
-  alles(N,1,1,a,u);
-  alles(N,2,1,a,u);
+  alles(N,1,1,a,u,1);
+  alles(N,2,1,a,u,1);
   a = Vektor(0,2,0);
-  alles(N,1,2,a,u);
+  alles(N,1,2,a,u,1);
 
   fout.close();
 
