@@ -1,6 +1,7 @@
 #include "Vektor.hh"
 #include "Zylindermantel.hh"
 #include "Vollzylinder.hh"
+#include "Koerper.hh"
 #include <iostream>
 #include <memory>
 #include <fstream>
@@ -8,59 +9,53 @@
 
 std::ofstream fout("trägheit.txt");
 
-int alles(double N, double M, double ZM_R, Vektor a, Vektor u, double ZM_L) {
+double traegheit(Koerper* k, Vektor a , Vektor u) {
 
-  std::unique_ptr<Zylindermantel> zm(new Zylindermantel(ZM_R, ZM_L));
-
-  double J = 0;     // Massentraegheitsmoment
-  double m = M / N; // Masse eines Massenpunktes
+  const int N = 1000;
+  double J = 0;
+  double m = k-> mass() / N;
   for (int i = 0; i < N; ++i) {
-    Vektor x = zm->punkt();
-    // Abstand Punkt x und Gerade a + t*u
-    // Vektor n = ...;//Normalenvektor x-a kreuz u
-    double r = (((x-a).Vektor::kreuz(u)).Vektor::betrag()) / (u.Vektor::betrag()); //|n|/|u|
-    // std::cout << x << " :" << r << std::endl;
-    // addiere Beitrag des Massenpunktes zum Traegheitsmoment
+    Vektor x = k->punkt();
+    double r = (((x-a).Vektor::kreuz(u)).Vektor::betrag()) / (u.Vektor::betrag());
     J += m * r * r;
   }
-
-    double JZMan = (M * ZM_R * ZM_R) + (M * std::pow((((a).Vektor::kreuz(u)).Vektor::betrag() / u.Vektor::betrag()), 2));
-
-  std::unique_ptr<Vollzylinder> vz(new Vollzylinder(ZM_R, ZM_L));
-
-  double I = 0;
-  m = M / N;
-  for (int i = 0; i < N; ++i) {
-    Vektor x = vz->punkt();
-    double r = (((x-a).Vektor::kreuz(u)).Vektor::betrag()) / (u.Vektor::betrag());
-    I += m * r * r;
-  }
-
-    double IVZan = (M * ZM_R * ZM_R / 2) + (M * std::pow((((a).Vektor::kreuz(u)).Vektor::betrag() / u.Vektor::betrag()), 2));
-
- fout << ZM_R << " " << ZM_L << " " << M << " " << a << " " << u << " "
- << "|" << " " << JZMan << " " << J << " " << IVZan << " " << I << std::endl;
-  
-return 0;
-
+  return J;
 }
 
+std::unique_ptr<Koerper> Rechnen(double ZM_R, double ZM_L, double ZM_M, int i) {
+
+  if (i==0) {std::unique_ptr<Koerper> k(new Zylindermantel(ZM_R, ZM_L, ZM_M)); return k;}
+  if (i==1) {std::unique_ptr<Koerper> k(new Vollzylinder(ZM_R, ZM_L, ZM_M)); return k;}
+}
+
+double J_an = (k.get()->analytisch) + (k.get()->mass()) * std::pow((((a).Vektor::kreuz(u)).Vektor::betrag() / u.Vektor::betrag()), 2));
+
+void Tabelle(std::unique_ptr<Koerper> k, Vektor a, Vektor u) {
+  fout << k.get()-> mass() << " " << a << " " << u << " " << "|" << " " << J_an << " " << traegheit(k.get(), a, u) << std::endl;
+}
+
+void Aufteilung(int i) {
+  std::unique_ptr<Koerper> k(Rechnen(1, 1, 1, i));
+
+  fout << "berechne fuer" << k.get()-> name() << std::endl;
+
+  Tabelle(Rechnen(1, 1, 1, i), Vektor(0,0,0), Vektor(0,0,1));
+  Tabelle(Rechnen(1, 1, 2, i), Vektor(0,0,0), Vektor(0,0,1));
+  Tabelle(Rechnen(2, 1, 1, i), Vektor(0,0,0), Vektor(0,0,1));
+  Tabelle(Rechnen(1, 1, 1, i), Vektor(0,1,0), Vektor(0,0,1));
+  Tabelle(Rechnen(1, 1, 2, i), Vektor(0,0,1), Vektor(0,0,1));
+  Tabelle(Rechnen(2, 1, 1, i), Vektor(0,2,0), Vektor(0,0,1));
+
+  fout << std::endl;
+}
+
+
 int main() {
-
-  const int N = 10000;     // Anzahl Integrationspunkte
   
-
-  Vektor a(0,0,0); // Punkt auf der Rotationsachse
-  Vektor u(0,0,1); // Richtung der Rotationsachse
-
-  alles(N,1,1,a,u,1);
-  alles(N,2,1,a,u,1);
-  alles(N,1,2,a,u,1);
-  a = Vektor(0,1,0);
-  alles(N,1,1,a,u,1);
-  alles(N,2,1,a,u,1);
-  a = Vektor(0,2,0);
-  alles(N,1,2,a,u,1);
+  for (int i=0; i<2; ++i) {
+    Aufteilung(i);
+  }
+  
 
   fout.close();
 
@@ -68,6 +63,40 @@ int main() {
 
 }
 
+//Vektor a(0,0,0); // Punkt auf der Rotationsachse
+  //Vektor u(0,0,1); // Richtung der Rotationsachse
+
+  //alles(N,1,1,a,u,1);
+  //alles(N,2,1,a,u,1);
+  //alles(N,1,2,a,u,1);
+  //a = Vektor(0,1,0);
+  //alles(N,1,1,a,u,1);
+  //alles(N,2,1,a,u,1);
+  //a = Vektor(0,2,0);
+  //alles(N,1,2,a,u,1);
+
+//fout << ZM_R << " " << ZM_L << " " << ZM_M << " " << a << " " << u << " "
+ //<< "|" << " " << JZMan << " " << J << " " << IVZan << " " << I << std::endl;
+
+//double JZMan = (ZM_M * ZM_R * ZM_R) + (ZM_M * std::pow((((a).Vektor::kreuz(u)).Vektor::betrag() / u.Vektor::betrag()), 2));
+
+//double I = 0;
+  //m = M / N;
+//int alles(double N, double M, double ZM_R, Vektor a, Vektor u, double ZM_L) {
+
+  //std::unique_ptr<Zylindermantel> zm(new Zylindermantel(ZM_R, ZM_L));
+
+  //double J = 0;     // Massentraegheitsmoment
+  //double m = M / N; // Masse eines Massenpunktes
+  //for (int i = 0; i < N; ++i) {
+    //Vektor x = zm->punkt();
+    // Abstand Punkt x und Gerade a + t*u
+    // Vektor n = ...;//Normalenvektor x-a kreuz u
+    //double r = (((x-a).Vektor::kreuz(u)).Vektor::betrag()) / (u.Vektor::betrag()); //|n|/|u|
+    // std::cout << x << " :" << r << std::endl;
+    // addiere Beitrag des Massenpunktes zum Traegheitsmoment
+    //J += m * r * r;
+  //}
 
   //const double M = 1;      // Masse des Zylindermantels
   //const double ZM_R = 1.0; // Radius der Zylindermantels
