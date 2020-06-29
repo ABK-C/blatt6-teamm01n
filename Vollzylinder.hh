@@ -11,7 +11,7 @@ public:
   Vektor punkt();
   double mass() {return m_;}
   std::string name() {return "Vollzylinder";}
-  double analytisch;
+  double analytisch();
 
 private:
   double r_, l_, m_;

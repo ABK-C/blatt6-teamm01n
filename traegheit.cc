@@ -7,19 +7,20 @@
 #include <fstream>
 #include <cmath>
 
+
 std::ofstream fout("trägheit.txt");
 
 double traegheit(Koerper* k, Vektor a , Vektor u) {
 
-  const int N = 1000;
+  const int N = 10000;
   double J = 0;
-  double m = k-> mass() / N;
+  //double m =  / N;
   for (int i = 0; i < N; ++i) {
     Vektor x = k->punkt();
     double r = (((x-a).Vektor::kreuz(u)).Vektor::betrag()) / (u.Vektor::betrag());
-    J += m * r * r;
+    J += r * r;
   }
-  return J;
+  return J * k-> mass() / N;
 }
 
 std::unique_ptr<Koerper> Rechnen(double ZM_R, double ZM_L, double ZM_M, int i) {
@@ -28,22 +29,22 @@ std::unique_ptr<Koerper> Rechnen(double ZM_R, double ZM_L, double ZM_M, int i) {
   if (i==1) {std::unique_ptr<Koerper> k(new Vollzylinder(ZM_R, ZM_L, ZM_M)); return k;}
 }
 
-double J_an = (k.get()->analytisch) + (k.get()->mass()) * std::pow((((a).Vektor::kreuz(u)).Vektor::betrag() / u.Vektor::betrag()), 2));
+//double J_an = ;
 
 void Tabelle(std::unique_ptr<Koerper> k, Vektor a, Vektor u) {
-  fout << k.get()-> mass() << " " << a << " " << u << " " << "|" << " " << J_an << " " << traegheit(k.get(), a, u) << std::endl;
+  fout << k.get()-> mass() << " " << a << " " << u << " " << "|" << " " << (k.get()->analytisch() + (k.get()->mass()) * std::pow((((a).Vektor::kreuz(u)).Vektor::betrag() / u.Vektor::betrag()), 2)) << " " << traegheit(k.get(), a, u) << std::endl;
 }
 
 void Aufteilung(int i) {
   std::unique_ptr<Koerper> k(Rechnen(1, 1, 1, i));
 
-  fout << "berechne fuer" << k.get()-> name() << std::endl;
+  fout << "berechnet fuer " << k.get()-> name() << std::endl;
 
   Tabelle(Rechnen(1, 1, 1, i), Vektor(0,0,0), Vektor(0,0,1));
   Tabelle(Rechnen(1, 1, 2, i), Vektor(0,0,0), Vektor(0,0,1));
   Tabelle(Rechnen(2, 1, 1, i), Vektor(0,0,0), Vektor(0,0,1));
   Tabelle(Rechnen(1, 1, 1, i), Vektor(0,1,0), Vektor(0,0,1));
-  Tabelle(Rechnen(1, 1, 2, i), Vektor(0,0,1), Vektor(0,0,1));
+  Tabelle(Rechnen(1, 1, 2, i), Vektor(0,1,0), Vektor(0,0,1));
   Tabelle(Rechnen(2, 1, 1, i), Vektor(0,2,0), Vektor(0,0,1));
 
   fout << std::endl;
